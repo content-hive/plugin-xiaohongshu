@@ -17,9 +17,3 @@ contenthive.json     # repository metadata for the Content Hive plugin catalog
 ## Disclaimer
 
 > 本插件通过抓取小红书网页获取内容，使用前请确保符合小红书服务条款及当地法律法规。平台规则变更可能导致插件失效。
-
-## Releasing
-
-1. Bump `version` and rewrite `release_notes` in `plugin/manifest.json`.
-2. Merge into `main`.
-3. Publish a GitHub Release whose tag is `v<version>` (for example `v0.1.14`).
