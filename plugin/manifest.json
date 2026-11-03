@@ -8,6 +8,5 @@
   ],
   "requirements": [],
   "config_flow": false,
-  "disclaimer": "本插件通过抓取小红书网页获取内容，使用前请确保符合小红书服务条款及当地法律法规。平台规则变更可能导致插件失效。",
-  "release_notes": "Registry migration: track per-plugin manifest."
+  "disclaimer": "本插件通过抓取小红书网页获取内容，使用前请确保符合小红书服务条款及当地法律法规。平台规则变更可能导致插件失效。"
 }
