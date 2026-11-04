@@ -185,8 +185,8 @@ class XiaohongshuParser:
                             streams=[
                                 VideoStream(
                                     urls=[vid_info["url"], *(vid_info.get("url_fallbacks") or [])],
-                                    width=width,
-                                    height=height,
+                                    width=vid_info.get("width"),
+                                    height=vid_info.get("height"),
                                 ),
                                 ImageStream(urls=[img_url], width=width, height=height),
                             ],
