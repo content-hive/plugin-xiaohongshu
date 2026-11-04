@@ -10,12 +10,16 @@ import aiohttp
 
 from contenthive.plugins.context import PluginContext
 from contenthive.plugins.contracts import (
+    CoverStream,
+    ImageStream,
     MediaType,
     ParserAuthorInfo,
     ParserMediaInfo,
     ParserPlatformInfo,
     ParserResult,
     ParserResultStatus,
+    VideoStream,
+    source_key_from_url,
 )
 
 from .const import (
@@ -169,29 +173,35 @@ class XiaohongshuParser:
                 # Live photo: video in stream, cover is image
                 vid_info = self._extract_video_info(img.get("stream", {}))
                 if vid_info:
+                    width = img.get("width")
+                    height = img.get("height")
                     media_list.append(
                         ParserMediaInfo(
-                            url=vid_info["url"],
-                            url_fallbacks=vid_info.get("url_fallbacks"),
+                            source_key=source_key_from_url(vid_info["url"]),
                             type=MediaType.LIVEPHOTO,
-                            title=None,
-                            cover=img_url,
                             duration=vid_info.get("duration"),
-                            width=img.get("width"),
-                            height=img.get("height"),
+                            width=width,
+                            height=height,
+                            streams=[
+                                VideoStream(
+                                    urls=[vid_info["url"], *(vid_info.get("url_fallbacks") or [])],
+                                    width=width,
+                                    height=height,
+                                ),
+                                ImageStream(urls=[img_url], width=width, height=height),
+                            ],
                         )
                     )
             else:
-                # Normal image
+                width = img.get("width")
+                height = img.get("height")
                 media_list.append(
                     ParserMediaInfo(
-                        url=img_url,
+                        source_key=source_key_from_url(img_url),
                         type=MediaType.IMAGE,
-                        title=None,
-                        cover=None,
-                        duration=None,
-                        width=img.get("width"),
-                        height=img.get("height"),
+                        width=width,
+                        height=height,
+                        streams=[ImageStream(urls=[img_url], width=width, height=height)],
                     )
                 )
 
@@ -204,16 +214,23 @@ class XiaohongshuParser:
             cover_id = cover_image.get("firstFrameFileid") or first_image.get("traceId") or first_image.get("fileId")
             cover_url = self._get_img_url_by_trace_id(cover_id) if cover_id else None
 
+            streams: list = [
+                VideoStream(
+                    urls=[vid_info["url"], *(vid_info.get("url_fallbacks") or [])],
+                    width=vid_info.get("width"),
+                    height=vid_info.get("height"),
+                )
+            ]
+            if cover_url:
+                streams.append(CoverStream(urls=[cover_url]))
             media_list.append(
                 ParserMediaInfo(
-                    url=vid_info["url"],
-                    url_fallbacks=vid_info.get("url_fallbacks"),
+                    source_key=source_key_from_url(vid_info["url"]),
                     type=MediaType.VIDEO,
-                    title=None,
-                    cover=cover_url,
                     duration=vid_info.get("duration"),
                     width=vid_info.get("width"),
                     height=vid_info.get("height"),
+                    streams=streams,
                 )
             )
 
